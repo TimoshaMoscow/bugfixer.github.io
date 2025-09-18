@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Багофиксер: Путь разработчика</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #0a0a0a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #00ff00;
+            padding: 20px;
+            background-color: #001100;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            border-radius: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+        }
+        .screen {
+            display: none;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #00aa00;
+            border-radius: 5px;
+            background-color: #001a00;
+        }
+        #game-screen {
+            display: block;
+        }
+        button {
+            background-color: #003300;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #00aa00;
+            color: #000;
+        }
+        .file-system {
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px dashed #00ff00;
+            background-color: #002200;
+        }
+        .code {
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #00ff00;
+            white-space: pre-wrap;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #002200;
+            border: 1px solid #00ff00;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #00ff00;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .ending {
+            text-align: center;
+            padding: 20px;
+        }
+        .good {
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+        }
+        .bad {
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>БАГОФИКСЕР: ПУТЬ РАЗРАБОТЧИКА</h1>
+        
+        <div id="start-screen" class="screen">
+            <p>Добро пожаловать в мир разработки программного обеспечения!</p>
+            <p>Ваша задача - исправлять баги в коде или... стать одним из них.</p>
+            <p>Будьте осторожны: каждый ваш выбор влияет на исход игры.</p>
+            <button id="start-btn">НАЧАТЬ ИГРУ</button>
+        </div>
+        
+        <div id="game-screen" class="screen">
+            <div class="progress-bar">
+                <div id="progress" class="progress" style="width: 0%"></div>
+            </div>
+            <p>День: <span id="day">1</span> | Багов исправлено: <span id="fixed">0</span> | Багов создано: <span id="created">0</span></p>
+            
+            <div id="event-description">
+                <p>Вы пришли на работу. Перед вами открыт редактор кода. Что будете делать?</p>
+            </div>
+            
+            <div class="file-system">
+                <h3>Файловая система проекта:</h3>
+                <div class="code" id="code-display">// main.js
+function calculateSum(a, b) {
+    return a + b; // TODO: Проверить работу с отрицательными числами
+}
+
+// Вроде бы всё работает...
+console.log(calculateSum(2, 3)); // 5
+console.log(calculateSum(-1, 5)); // 4? Или -4?</div>
+            </div>
+            
+            <div id="choices">
+                <button onclick="makeChoice(0)">Исправить баг</button>
+                <button onclick="makeChoice(1)">Создать новый баг</button>
+                <button onclick="makeChoice(2)">Ничего не делать</button>
+            </div>
+        </div>
+        
+        <div id="ending-screen" class="screen">
+            <div id="good-ending" class="ending hidden">
+                <h2 class="good">ХОРОШАЯ КОНЦОВКА: ВЫСШИЙ РАЗРАБОТЧИК</h2>
+                <p>Поздравляем! Вы успешно исправили все критические баги в системе.</p>
+                <p>Ваш код теперь работает безупречно, пользователи довольны, а руководство повысило вам зарплату.</p>
+                <p>Вы доказали, что являетесь настоящим мастером своего дела!</p>
+                <button onclick="resetGame()">Играть снова</button>
+            </div>
+            
+            <div id="bad-ending" class="ending hidden">
+                <h2 class="bad">ПЛОХАЯ КОНЦОВКА: ВЫ СТАЛИ БАГОМ</h2>
+                <p>Вы создали так много багов, что система начала воспринимать вас как часть себя.</p>
+                <p>Теперь вы - вечный баг в матрице кода, бесконечно циклирующий в мире нулей и единиц.</p>
+                <p>Возможно, в следующей итерации цикла вам повезёт больше...</p>
+                <button onclick="resetGame()">Играть снова</button>
+            </div>
+            
+            <div id="neutral-ending" class="ending hidden">
+                <h2>НЕЙТРАЛЬНАЯ КОНЦОВКА: ОБЫЧНЫЙ РАЗРАБОТЧИК</h2>
+                <p>Вы просто делали свою работу без особого энтузиазма.</p>
+                <p>Система работает с парой мелких багов, но в целом всё нормально.</p>
+                <p>Вы получили свою зарплату и отправились домой. Завтра будет новый день.</p>
+                <button onclick="resetGame()">Играть снова</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        let day = 1;
+        let bugsFixed = 0;
+        let bugsCreated = 0;
+        let progress = 0;
+        const MAX_DAYS = 10;
+        
+        // Элементы интерфейса
+        const dayElement = document.getElementById('day');
+        const fixedElement = document.getElementById('fixed');
+        const createdElement = document.getElementById('created');
+        const progressElement = document.getElementById('progress');
+        const eventDescription = document.getElementById('event-description');
+        const codeDisplay = document.getElementById('code-display');
+        
+        // Начальные экраны
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endingScreen = document.getElementById('ending-screen');
+        
+        // Концовки
+        const goodEnding = document.getElementById('good-ending');
+        const badEnding = document.getElementById('bad-ending');
+        const neutralEnding = document.getElementById('neutral-ending');
+        
+        // События игры
+        const events = [
+            {
+                description: "Вы нашли баг в функции вычисления суммы. Она неправильно работает с отрицательными числами.",
+                code: `// main.js
+function calculateSum(a, b) {
+    return a + b; // TODO: Проверить работу с отрицательными числами
+}
+
+// Вроде бы всё работает...
+console.log(calculateSum(2, 3)); // 5
+console.log(calculateSum(-1, 5)); // 4? Или -4?`,
+                choices: [
+                    { text: "Исправить баг", result: "Вы исправили функцию. Теперь она правильно обрабатывает отрицательные числа.", fixed: 1, created: 0 },
+                    { text: "Добавить новый баг", result: "Вы 'исправили' функцию, но добавили новую ошибку переполнения.", fixed: 0, created: 1 },
+                    { text: "Проигнорировать", result: "Вы решили, что это не критично, и продолжили работать над другими задачами.", fixed: 0, created: 0 }
+                ]
+            },
+            {
+                description: "В модуле аутентификации обнаружена уязвимость безопасности. Нужно срочно принять решение.",
+                code: `// auth.js
+function validatePassword(password) {
+    // Уязвимость: слабая проверка пароля
+    if (password.length > 0) {
+        return true;
+    }
+    return false;
+}`,
+                choices: [
+                    { text: "Исправить уязвимость", result: "Вы добавили надежную проверку паролей и повысили безопасность системы.", fixed: 2, created: 0 },
+                    { text: "Создать backdoor", result: "Вы добавили скрытый способ обхода аутентификации 'на всякий случай'.", fixed: 0, created: 2 },
+                    { text: "Отложить исправление", result: "Вы добавили задачу в бэклог и продолжили работать над другими проблемами.", fixed: 0, created: 0 }
+                ]
+            },
+            {
+                description: "Обнаружена проблема с утечкой памяти в модуле обработки изображений. Производительность падает.",
+                code: `// image-processor.js
+function processImage(image) {
+    let buffer = allocateMemory(image.size * 10); // Утечка: память не освобождается
+    // ... обработка изображения
+    return result;
+}`,
+                choices: [
+                    { text: "Оптимизировать код", result: "Вы исправили утечку памяти и улучшили производительность.", fixed: 2, created: 0 },
+                    { text: "Закомментировать проблемный код", result: "Вы 'исправили' проблему, просто отключив функциональность.", fixed: 0, created: 1 },
+                    { text: "Перезапускать сервер каждую ночь", result: "Вы добавили скрипт перезагрузки вместо исправления проблемы.", fixed: 0, created: 0 }
+                ]
+            },
+            {
+                description: "Клиенты жалуются на некорректное отображение данных в отчетах. Нужно разобраться.",
+                code: `// reports.js
+function generateReport(data) {
+    // Баг: неправильная сортировка данных
+    return data.sort(); // Сортировка как строк, а не чисел
+}`,
+                choices: [
+                    { text: "Исправить сортировку", result: "Вы реализовали правильную сортировку числовых данных.", fixed: 1, created: 0 },
+                    { text: "Изменить тип данных", result: "Вы изменили тип данных, сломав совместимость с другими модулями.", fixed: 0, created: 2 },
+                    { text: "Документировать 'особенность'", result: "Вы добавили комментарий, что сортировка работает как строковая.", fixed: 0, created: 0 }
+                ]
+            },
+            {
+                description: "Обнаружена рассинхронизация данных между основной и резервной базами данных.",
+                code: `// database.js
+async function syncData() {
+    // Проблема: нет обработки конфликтов
+    const mainData = await getMainData();
+    const backupData = await getBackupData();
+    return {...mainData, ...backupData}; // Простое объединение теряет данные
+}`,
+                choices: [
+                    { text: "Реализовать правильную синхронизацию", result: "Вы создали надежный механизм синхронизации с обработкой конфликтов.", fixed: 2, created: 0 },
+                    { text: "Отключить синхронизацию", result: "Вы отключили проблемную функциональность, создав риск потери данных.", fixed: 0, created: 3 },
+                    { text: "Синхронизировать только в одну сторону", result: "Вы упростили логику, но создали возможность потери данных.", fixed: 0, created: 1 }
+                ]
+            }
+        ];
+        
+        // Инициализация игры
+        function initGame() {
+            startScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+            endingScreen.style.display = 'none';
+            
+            document.getElementById('start-btn').addEventListener('click', startGame);
+        }
+        
+        // Начало игры
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            endingScreen.style.display = 'none';
+            
+            day = 1;
+            bugsFixed = 0;
+            bugsCreated = 0;
+            progress = 0;
+            
+            updateUI();
+            generateEvent();
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            dayElement.textContent = day;
+            fixedElement.textContent = bugsFixed;
+            createdElement.textContent = bugsCreated;
+            progressElement.style.width = `${progress}%`;
+        }
+        
+        // Генерация случайного события
+        function generateEvent() {
+            const event = events[Math.floor(Math.random() * events.length)];
+            eventDescription.innerHTML = `<p>День ${day}. ${event.description}</p>`;
+            codeDisplay.textContent = event.code;
+            
+            // Обновляем кнопки
+            const choicesContainer = document.getElementById('choices');
+            choicesContainer.innerHTML = '';
+            
+            event.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.onclick = () => makeChoice(index);
+                choicesContainer.appendChild(button);
+            });
+        }
+        
+        // Обработка выбора игрока
+        function makeChoice(choiceIndex) {
+            const event = events[Math.floor(Math.random() * events.length)];
+            const choice = event.choices[choiceIndex];
+            
+            // Показываем результат выбора
+            eventDescription.innerHTML += `<p>${choice.result}</p>`;
+            
+            // Обновляем статистику
+            bugsFixed += choice.fixed;
+            bugsCreated += choice.created;
+            progress = Math.min(100, progress + (choice.fixed * 10) - (choice.created * 5));
+            
+            // Переходим к следующему дню
+            day++;
+            updateUI();
+            
+            // Проверяем условия окончания игры
+            if (day > MAX_DAYS || progress >= 100 || bugsCreated >= 15) {
+                endGame();
+            } else {
+                // Через секунду генерируем новое событие
+                setTimeout(generateEvent, 1500);
+            }
+        }
+        
+        // Завершение игры
+        function endGame() {
+            gameScreen.style.display = 'none';
+            endingScreen.style.display = 'block';
+            
+            // Определяем концовку
+            if (progress >= 100) {
+                goodEnding.classList.remove('hidden');
+                badEnding.classList.add('hidden');
+                neutralEnding.classList.add('hidden');
+            } else if (bugsCreated >= 15) {
+                goodEnding.classList.add('hidden');
+                badEnding.classList.remove('hidden');
+                neutralEnding.classList.add('hidden');
+            } else {
+                goodEnding.classList.add('hidden');
+                badEnding.classList.add('hidden');
+                neutralEnding.classList.remove('hidden');
+            }
+        }
+        
+        // Сброс игры
+        function resetGame() {
+            endingScreen.style.display = 'none';
+            startGame();
+        }
+        
+        // Запускаем игру при загрузке страницы
+        window.onload = initGame;
+    </script>
+</body>
+</html>
